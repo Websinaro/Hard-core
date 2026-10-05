@@ -1,5 +1,6 @@
 import argon2 from "argon2";
 import { prisma } from "../../database/prisma";
+import { AppError } from "../../utils/app-error";
 import { RegisterInput } from "./auth.schema";
 
 export async function registerUser(input: RegisterInput) {
@@ -10,7 +11,11 @@ export async function registerUser(input: RegisterInput) {
     });
     
     if(existingUser) {
-        throw new Error("Unable To Create Account");
+        throw new AppError(
+            409,
+            "ACCOUNT-EXISTS",
+            "Unable to create account"
+        );
     }
     
     const passwordHash = await argon2.hash(input.password, {
